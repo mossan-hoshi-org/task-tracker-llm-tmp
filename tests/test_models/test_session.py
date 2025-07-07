@@ -63,3 +63,57 @@ class TestSession:
 
         with pytest.raises(AssertionError, match="Task name cannot be empty"):
             Session("   ")
+
+    def test_session_pause(self) -> None:
+        session = Session("Test Task")
+        session.start()
+        session.pause()
+
+        assert session.is_paused is True
+        assert session.pause_start_time is not None
+
+    def test_session_resume(self) -> None:
+        session = Session("Test Task")
+        session.start()
+        session.pause()
+        session.resume()
+
+        assert session.is_paused is False
+        assert session.pause_start_time is None
+        assert session.paused_time > 0
+
+    def test_cannot_pause_without_start(self) -> None:
+        session = Session("Test Task")
+
+        with pytest.raises(AssertionError, match="Session is not running"):
+            session.pause()
+
+    def test_cannot_pause_when_already_paused(self) -> None:
+        session = Session("Test Task")
+        session.start()
+        session.pause()
+
+        with pytest.raises(AssertionError, match="Session is already paused"):
+            session.pause()
+
+    def test_cannot_resume_when_not_paused(self) -> None:
+        session = Session("Test Task")
+        session.start()
+
+        with pytest.raises(AssertionError, match="Session is not paused"):
+            session.resume()
+
+    def test_paused_time_not_counted_in_duration(self) -> None:
+        import time
+
+        session = Session("Test Task")
+        session.start()
+        time.sleep(0.1)
+        session.pause()
+        time.sleep(0.1)
+        session.resume()
+        time.sleep(0.1)
+        session.stop()
+
+        duration = session.get_duration()
+        assert 0.15 < duration < 0.25

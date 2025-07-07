@@ -34,3 +34,11 @@ class TaskTracker:
 
     def get_all_sessions(self) -> List[Session]:
         return self.sessions.copy()
+
+    def pause_current(self) -> None:
+        assert self.current_session is not None, "No active session to pause"
+        self.current_session.pause()
+
+    def resume_current(self) -> None:
+        assert self.current_session is not None, "No active session to resume"
+        self.current_session.resume()

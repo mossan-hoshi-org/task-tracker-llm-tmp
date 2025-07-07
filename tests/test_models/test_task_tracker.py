@@ -77,3 +77,34 @@ class TestTaskTracker:
 
         sessions = tracker.get_all_sessions()
         assert [s.task_name for s in sessions] == task_names
+
+    def test_pause_current_session(self) -> None:
+        tracker = TaskTracker()
+        tracker.start_task("Task 1")
+
+        tracker.pause_current()
+
+        assert tracker.current_session is not None
+        assert tracker.current_session.is_paused is True
+
+    def test_resume_current_session(self) -> None:
+        tracker = TaskTracker()
+        tracker.start_task("Task 1")
+        tracker.pause_current()
+
+        tracker.resume_current()
+
+        assert tracker.current_session is not None
+        assert tracker.current_session.is_paused is False
+
+    def test_cannot_pause_when_no_session(self) -> None:
+        tracker = TaskTracker()
+
+        with pytest.raises(AssertionError, match="No active session to pause"):
+            tracker.pause_current()
+
+    def test_cannot_resume_when_no_session(self) -> None:
+        tracker = TaskTracker()
+
+        with pytest.raises(AssertionError, match="No active session to resume"):
+            tracker.resume_current()
