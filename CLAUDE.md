@@ -106,7 +106,7 @@ task-tracker-llm/
 def test_session_start_creates_new_session():
     session = Session("Task 1")
     session.start()
-    
+
     assert session.is_running
     assert session.start_time is not None
     assert session.task_name == "Task 1"
@@ -121,7 +121,7 @@ class Session:
         self.task_name = task_name
         self.is_running = False
         self.start_time = None
-    
+
     def start(self):
         assert not self.is_running, "Session is already running"
         self.is_running = True
@@ -133,7 +133,7 @@ class Session:
 # tests/test_models/test_session.py
 def test_session_pause_requires_running_session():
     session = Session("Task 1")
-    
+
     with pytest.raises(AssertionError, match="Session must be running"):
         session.pause()
 ```
@@ -192,12 +192,12 @@ class TaskTracker:
     def switch_task(self, new_task: str):
         assert new_task, "New task name cannot be empty"
         assert self.current_session, "No active session to switch from"
-        
+
         old_session = self.current_session
         old_session.stop()
         self.current_session = Session(new_task)
         self.current_session.start()
-        
+
         assert self.current_session.task_name == new_task, "Task switch failed"
         assert self.current_session.is_running, "New session must be running"
 ```
