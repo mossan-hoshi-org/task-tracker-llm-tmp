@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import messagebox
 from typing import Any
 
 from src.models.task_tracker import TaskTracker
@@ -59,32 +60,41 @@ class MainWindow:
     def _on_start_click(self) -> None:
         task_name = self.task_input.get().strip()
         if task_name:
-            self.task_tracker.start_task(task_name)
-            self.task_input.delete(0, tk.END)
-            self.start_button.config(state="disabled")
-            self.pause_button.config(state="normal")
-            self.stop_button.config(state="normal")
-            self._update_task_list()
+            try:
+                self.task_tracker.start_task(task_name)
+                self.task_input.delete(0, tk.END)
+                self.start_button.config(state="disabled")
+                self.pause_button.config(state="normal")
+                self.stop_button.config(state="normal")
+                self._update_task_list()
+            except Exception as e:
+                messagebox.showerror("エラー", f"タスクの開始に失敗しました: {str(e)}")
 
     def _on_pause_click(self) -> None:
-        if self.task_tracker.current_session and self.task_tracker.current_session.is_paused:
-            self.task_tracker.resume_current()
-            self.pause_button.config(text="⏸ 一時停止")
-        else:
-            self.task_tracker.pause_current()
-            self.pause_button.config(text="▶ 再開")
+        try:
+            if self.task_tracker.current_session and self.task_tracker.current_session.is_paused:
+                self.task_tracker.resume_current()
+                self.pause_button.config(text="⏸ 一時停止")
+            else:
+                self.task_tracker.pause_current()
+                self.pause_button.config(text="▶ 再開")
+        except Exception as e:
+            messagebox.showerror("エラー", f"一時停止/再開の操作に失敗しました: {str(e)}")
 
     def _on_stop_click(self) -> None:
-        if self.task_tracker.current_session:
-            self.task_tracker.stop_all()
-            self.pause_button.config(state="disabled")
-            self.stop_button.config(state="disabled")
-            self._update_task_list()
+        try:
+            if self.task_tracker.current_session:
+                self.task_tracker.stop_all()
+                self.pause_button.config(state="disabled")
+                self.stop_button.config(state="disabled")
+                self._update_task_list()
 
-            # Show summary screen
-            sessions = self.task_tracker.get_all_sessions()
-            if sessions:
-                SummaryScreen(sessions)
+                # Show summary screen
+                sessions = self.task_tracker.get_all_sessions()
+                if sessions:
+                    SummaryScreen(sessions)
+        except Exception as e:
+            messagebox.showerror("エラー", f"セッションの終了に失敗しました: {str(e)}")
 
     def _update_task_list(self) -> None:
         self.task_list.delete(0, tk.END)
